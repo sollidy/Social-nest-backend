@@ -9,7 +9,6 @@ export class AuthService {
   constructor(@InjectModel('users') private userModel: Model<UserDocument>) {}
 
   async register(dto: AuthDto) {
-    const createdUser = new this.userModel(dto);
-    return createdUser.save();
+    return this.userModel.create(dto);
   }
 }
