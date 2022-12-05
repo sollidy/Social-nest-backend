@@ -5,6 +5,7 @@ import { getMongoConfig } from './configs/mongo.config';
 
 import { ProfileModule } from './profile/profile.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from './user/user.module';
     ConfigModule.forRoot(),
     ProfileModule,
     UserModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
