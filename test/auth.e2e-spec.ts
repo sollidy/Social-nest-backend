@@ -5,6 +5,7 @@ import { AppModule } from '../src/app.module';
 import { disconnect, Types } from 'mongoose';
 import { AuthDto } from '../src/auth/dto/auth.dto';
 import { USER_NOT_FOUND } from '../src/user/user.constants';
+import { runInContext } from 'vm';
 
 const testDto: AuthDto = {
   email: 'a@a.ru',
@@ -25,7 +26,7 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/auth/register (POST)', (done) => {
+  it('/auth/register (POST) - success', (done) => {
     request(app.getHttpServer())
       .post('/auth/register')
       .send(testDto)
@@ -39,6 +40,14 @@ describe('AppController (e2e)', () => {
         throw new Error('Register failed');
         done();
       });
+  });
+
+  it('/auth/register (POST) - fail', (done) => {
+    request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ ...testDto, email: 'ru.ru' })
+      .expect(400)
+      .end(done);
   });
 
   it('/user/:id (DELETE) - fail', (done) => {
