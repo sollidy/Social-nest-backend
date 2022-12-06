@@ -1,5 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Users } from '../user/user.model';
 import { AuthService } from './auth.service';
 describe('MyService', () => {
   let service: AuthService;
@@ -11,7 +12,7 @@ describe('MyService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { useFactory: authRepoFactory, provide: getModelToken('users') },
+        { useFactory: authRepoFactory, provide: getModelToken(Users.name) },
       ],
     }).compile();
 
