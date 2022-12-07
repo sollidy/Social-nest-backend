@@ -5,17 +5,24 @@ import { AppModule } from '../src/app.module';
 import { disconnect, Types } from 'mongoose';
 import { AuthDto } from '../src/auth/dto/auth.dto';
 import { USER_NOT_FOUND } from '../src/user/user.constants';
-import { runInContext } from 'vm';
 
 const testDto: AuthDto = {
-  email: 'a@a.ru',
+  email: 'testApiNest@a.ru',
   name: 'Name',
   password: '12345',
 };
 
+const loginDto: Omit<AuthDto, 'name'> = {
+  email: 'a@a.ru',
+  password: '12345',
+};
+
+jest.useRealTimers();
+
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let createdId: string;
+  let token: string;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -24,7 +31,12 @@ describe('AppController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-  });
+
+    const { body } = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginDto);
+    token = body.access_token;
+  }, 8000);
 
   it('/auth/register (POST) - success', (done) => {
     request(app.getHttpServer())
@@ -33,14 +45,13 @@ describe('AppController (e2e)', () => {
       .expect(201)
       .then(({ body }: request.Response) => {
         createdId = body._id;
-        expect(createdId).toBeDefined;
+        expect(createdId).toBeDefined();
         done();
       })
-      .catch((err) => {
+      .catch(() => {
         throw new Error('Register failed');
-        done();
       });
-  });
+  }, 8000);
 
   it('/auth/register (POST) - fail', (done) => {
     request(app.getHttpServer())
@@ -53,6 +64,7 @@ describe('AppController (e2e)', () => {
   it('/user/:id (DELETE) - fail', (done) => {
     request(app.getHttpServer())
       .delete('/user/' + new Types.ObjectId().toHexString())
+      .set('Authorization', 'Bearer ' + token)
       .expect(404, {
         statusCode: 404,
         message: USER_NOT_FOUND,
@@ -63,7 +75,34 @@ describe('AppController (e2e)', () => {
   it('/user/:id (DELETE) - success', (done) => {
     request(app.getHttpServer())
       .delete('/user/' + createdId)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
+      .end(done);
+  });
+
+  it('/auth/login (POST) - success', (done) => {
+    request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginDto)
+      .expect(200)
+      .then(({ body }: request.Response) => {
+        expect(body.access_token).toBeDefined();
+        done();
+      })
+      .catch(() => {
+        throw new Error('Login failed');
+      });
+  });
+
+  it('/auth/register (POST) - fail', (done) => {
+    request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ ...loginDto, email: 'ru.ru' })
+      .expect(401, {
+        statusCode: 401,
+        message: 'User with that email not found',
+        error: 'Unauthorized',
+      })
       .end(done);
   });
 
