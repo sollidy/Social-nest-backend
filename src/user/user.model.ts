@@ -26,15 +26,16 @@ export class Users {
   status: string;
 
   @Prop([String])
-  followedIds: Array<string>;
+  followedIds: string[];
 
   @Prop({ default: false })
   followed: boolean;
 
   @Prop([UserPhotos])
   photos: UserPhotos;
-  // @Prop()
-  // roles: Array<string>;
+
+  @Prop([String])
+  roles: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(Users);

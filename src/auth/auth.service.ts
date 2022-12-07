@@ -4,7 +4,11 @@ import { Model } from 'mongoose';
 import { UserDocument, Users } from '../user/user.model';
 import { AuthDto } from './dto/auth.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
-import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from './auth.constants';
+import {
+  ROLE_USER,
+  USER_NOT_FOUND_ERROR,
+  WRONG_PASSWORD_ERROR,
+} from './auth.constants';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 
@@ -22,14 +26,12 @@ export class AuthService {
       name: dto.name,
       email: dto.email,
       passwordHash: await hash(dto.password, salt),
+      roles: [ROLE_USER],
     });
     return newUser.save();
   }
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<Pick<UserDocument, 'email'>> {
+  async validateUser(email: string, password: string) {
     const user = await this.userService.findUser(email);
     if (!user) {
       throw new UnauthorizedException(USER_NOT_FOUND_ERROR);
@@ -38,13 +40,18 @@ export class AuthService {
     if (!isCorrectPassword) {
       throw new UnauthorizedException(WRONG_PASSWORD_ERROR);
     }
-    return { email: user.email };
+    return { id: user.id as string, roles: user.roles };
   }
 
-  async login(email: string) {
-    const payload = { email };
+  async login(id: string, roles: string[]) {
+    const payload = { id, roles };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async me(id: string) {
+    if (!id) return;
+    return this.userModel.findById(id);
   }
 }

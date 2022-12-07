@@ -2,15 +2,23 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { UserIdRoles } from '../decorators/user.decorator';
 import { UserService } from '../user/user.service';
-import { ALREADY_EXIST_EMAIL_ERROR } from './auth.constants';
+import {
+  ALREADY_EXIST_EMAIL_ERROR,
+  ID_NOT_FOUND_ERROR,
+} from './auth.constants';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
+import { UserIdRolesDto } from './dto/userIdRoles.dto';
+import { JwtAuthGuard } from './guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -33,11 +41,16 @@ export class AuthController {
   @Post('login')
   async login(@Body() { email, password }: Omit<AuthDto, 'name'>) {
     const user = await this.authService.validateUser(email, password);
-    return this.authService.login(user.email);
+    return this.authService.login(user.id, user.roles);
   }
 
-  // @Get('me')
-  // async me() {
-  //   this.authService.me(id);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async me(@UserIdRoles() { id }: UserIdRolesDto) {
+    const me = await this.authService.me(id);
+    if (!me) {
+      throw new BadRequestException(ID_NOT_FOUND_ERROR);
+    }
+    return me;
+  }
 }
