@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   Post,
-  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,9 +15,9 @@ import {
   ID_NOT_FOUND_ERROR,
 } from './auth.constants';
 import { AuthService } from './auth.service';
+import { Auth } from './decorators/auth.decorator';
 import { AuthDto } from './dto/auth.dto';
 import { UserIdRolesDto } from './dto/userIdRoles.dto';
-import { JwtAuthGuard } from './guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -44,8 +43,8 @@ export class AuthController {
     return this.authService.login(user.id, user.roles);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
+  @Auth()
   async me(@UserIdRoles() { id }: UserIdRolesDto) {
     const me = await this.authService.me(id);
     if (!me) {

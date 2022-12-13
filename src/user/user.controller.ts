@@ -5,9 +5,8 @@ import {
   HttpException,
   HttpStatus,
   Get,
-  UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { Auth } from '../auth/decorators/auth.decorator';
 import { USER_NOT_FOUND } from './user.constants';
 import { UserService } from './user.service';
 
@@ -15,12 +14,18 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userServise: UserService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
+  @Auth()
   async delete(@Param('id') id: string) {
     const deletedUser = await this.userServise.delete(id);
     if (!deletedUser) {
       throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
+  }
+
+  @Get('all')
+  @Auth('ADMIN')
+  async getAllUsers() {
+    return this.userServise.getAllUsers();
   }
 }
