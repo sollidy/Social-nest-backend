@@ -7,6 +7,7 @@ import {
   Get,
 } from '@nestjs/common';
 import { Auth } from '../auth/decorators/auth.decorator';
+import { IdValidationPipe } from '../pipes/id.validation.pipe';
 import { USER_NOT_FOUND } from './user.constants';
 import { UserService } from './user.service';
 
@@ -16,7 +17,7 @@ export class UserController {
 
   @Delete(':id')
   @Auth()
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', IdValidationPipe) id: string) {
     const deletedUser = await this.userServise.delete(id);
     if (!deletedUser) {
       throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
