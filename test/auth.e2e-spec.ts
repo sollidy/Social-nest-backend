@@ -32,6 +32,7 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
+    //before test register test user a@a.ru
     const { body } = await request(app.getHttpServer())
       .post('/auth/login')
       .send(loginDto);

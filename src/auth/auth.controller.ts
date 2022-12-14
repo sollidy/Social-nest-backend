@@ -1,9 +1,11 @@
 import {
+  HttpException,
   BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Post,
   UsePipes,
   ValidationPipe,
@@ -29,7 +31,7 @@ export class AuthController {
   @UsePipes(new ValidationPipe())
   @Post('register')
   async register(@Body() dto: AuthDto) {
-    const oldUser = await this.userService.findUser(dto.email);
+    const oldUser = await this.userService.findByEmail(dto.email);
     if (oldUser) {
       throw new BadRequestException(ALREADY_EXIST_EMAIL_ERROR);
     }
@@ -48,7 +50,7 @@ export class AuthController {
   async me(@UserIdRoles() { id }: UserIdRolesDto) {
     const me = await this.authService.me(id);
     if (!me) {
-      throw new BadRequestException(ID_NOT_FOUND_ERROR);
+      throw new HttpException(ID_NOT_FOUND_ERROR, HttpStatus.NOT_FOUND);
     }
     return me;
   }

@@ -1,7 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserDocument, Users } from '../user/user.model';
 import { AuthDto } from './dto/auth.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import {
@@ -15,24 +12,22 @@ import { UserService } from '../user/user.service';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(Users.name) private userModel: Model<UserDocument>,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
   async register(dto: AuthDto) {
     const salt = await genSalt(5);
-    const newUser = new this.userModel({
+    return this.userService.create({
       name: dto.name,
       email: dto.email,
       passwordHash: await hash(dto.password, salt),
       roles: [ROLE_USER],
     });
-    return newUser.save();
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.userService.findUser(email);
+    const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException(USER_NOT_FOUND_ERROR);
     }
@@ -52,6 +47,6 @@ export class AuthService {
 
   async me(id: string) {
     if (!id) return;
-    return this.userModel.findById(id);
+    return this.userService.findById(id);
   }
 }

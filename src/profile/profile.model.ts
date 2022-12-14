@@ -1,21 +1,23 @@
-export class ProfileModel {
-  aboutMe: string | null;
-  fullName: string;
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type ProfileDocument = HydratedDocument<Profiles>;
+@Schema()
+export class Profiles {
+  @Prop({ default: null })
+  aboutMe: string;
+
+  @Prop({ default: null })
+  status: string;
+
+  @Prop({ default: false })
   lookingForAJob: boolean;
+
+  @Prop({ default: null })
   lookingForAJobDescription: string;
-  userId: string;
-  contacts: {
-    facebook: string | null;
-    github: string | null;
-    instagram: string | null;
-    mainLink: string | null;
-    twitter: string | null;
-    vk: string | null;
-    website: string | null;
-    youtube: string | null;
-  };
-  photos: {
-    small?: string;
-    large?: string;
-  };
+
+  @Prop({ default: null })
+  homeUrl: string;
 }
+
+export const ProfileSchema = SchemaFactory.createForClass(Profiles);

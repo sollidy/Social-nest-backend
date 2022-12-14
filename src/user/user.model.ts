@@ -1,15 +1,8 @@
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Profiles } from '../profile/profile.model';
 
 export type UserDocument = HydratedDocument<Users>;
-
-class UserPhotos {
-  @Prop({ default: null })
-  small: string;
-
-  @Prop({ default: null })
-  large: string;
-}
 
 @Schema({ timestamps: true })
 export class Users {
@@ -23,19 +16,16 @@ export class Users {
   name: string;
 
   @Prop({ default: null })
-  status: string;
+  photo: string;
 
   @Prop([String])
   followedIds: string[];
 
-  @Prop({ default: false })
-  followed: boolean;
-
-  @Prop([UserPhotos])
-  photos: UserPhotos;
-
   @Prop([String])
   roles: string[];
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Profiles' })
+  profile: Profiles;
 }
 
 export const UserSchema = SchemaFactory.createForClass(Users);
