@@ -6,7 +6,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-export class ProfileDto {
+export class UpdateProfileDto {
   @IsString()
   @MaxLength(300)
   @IsOptional()

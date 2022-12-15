@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { getMongoConfig } from './configs/mongo.config';
 
-import { ProfileModule } from './profile/profile.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 
@@ -15,7 +14,6 @@ import { AuthModule } from './auth/auth.module';
       useFactory: getMongoConfig,
     }),
     ConfigModule.forRoot(),
-    ProfileModule,
     UserModule,
     AuthModule,
   ],

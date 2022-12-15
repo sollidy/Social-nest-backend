@@ -1,8 +1,26 @@
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Profiles } from '../profile/profile.model';
 
-export type UserDocument = HydratedDocument<Users>;
+@Schema({ _id: false })
+class Profile {
+  @Prop({ default: null })
+  aboutMe: string;
+
+  @Prop({ default: null })
+  status: string;
+
+  @Prop({ default: null })
+  photo: string;
+
+  @Prop({ default: false })
+  lookingForAJob: boolean;
+
+  @Prop({ default: null })
+  lookingForAJobDescription: string;
+
+  @Prop({ default: null })
+  homeUrl: string;
+}
 
 @Schema({ timestamps: true })
 export class Users {
@@ -15,17 +33,15 @@ export class Users {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ default: null })
-  photo: string;
-
   @Prop([String])
   followedIds: string[];
 
   @Prop([String])
   roles: string[];
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Profiles' })
-  profile: Profiles;
+  @Prop({ type: Profile })
+  profile: Profile;
 }
 
+export type UserDocument = HydratedDocument<Users>;
 export const UserSchema = SchemaFactory.createForClass(Users);

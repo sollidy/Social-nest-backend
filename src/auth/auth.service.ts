@@ -1,7 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
+
 import { AuthDto } from './dto/auth.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import {
+  ALREADY_EXIST_EMAIL_ERROR,
   ROLE_USER,
   USER_NOT_FOUND_ERROR,
   WRONG_PASSWORD_ERROR,
@@ -17,6 +23,10 @@ export class AuthService {
   ) {}
 
   async register(dto: AuthDto) {
+    const oldUser = await this.userService.findByEmail(dto.email);
+    if (oldUser) {
+      throw new BadRequestException(ALREADY_EXIST_EMAIL_ERROR);
+    }
     const salt = await genSalt(5);
     return this.userService.create({
       name: dto.name,
