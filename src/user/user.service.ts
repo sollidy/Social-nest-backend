@@ -51,7 +51,17 @@ export class UserService {
     dto: UpdateProfileDto,
   ): Promise<Pick<Users, 'profile' | '_id'> | null> {
     return this.userModel
-      .findByIdAndUpdate(id, { profile: dto }, { new: true, select: 'profile' })
+      .findByIdAndUpdate(
+        id,
+        {
+          'profile.status': dto.status,
+          'profile.aboutMe': dto.aboutMe,
+          'profile.homeUrl': dto.homeUrl,
+          'profile.lookingForAJob': dto.lookingForAJob,
+          'profile.lookingForAJobDescription': dto.lookingForAJobDescription,
+        },
+        { new: true, select: 'profile', upsert: true },
+      )
       .exec();
   }
 
@@ -84,6 +94,16 @@ export class UserService {
         id,
         { $pull: { followedIds: unfollowId } },
         { new: true, select: 'followedIds' },
+      )
+      .exec();
+  }
+
+  async savePhotoUrl(id: string, url: string) {
+    return this.userModel
+      .findByIdAndUpdate(
+        id,
+        { 'profile.photo': url },
+        { new: true, select: 'profile.photo' },
       )
       .exec();
   }

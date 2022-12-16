@@ -4,13 +4,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema({ _id: false })
 class Profile {
   @Prop({ default: null })
-  aboutMe: string;
-
-  @Prop({ default: null })
   status: string;
 
   @Prop({ default: null })
-  photo: string;
+  aboutMe: string;
+
+  @Prop({ default: null })
+  homeUrl: string;
 
   @Prop({ default: false })
   lookingForAJob: boolean;
@@ -19,7 +19,7 @@ class Profile {
   lookingForAJobDescription: string;
 
   @Prop({ default: null })
-  homeUrl: string;
+  photo: string;
 }
 
 @Schema({ timestamps: true })

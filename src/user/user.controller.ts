@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  HttpCode,
   Param,
   Get,
   Patch,
@@ -8,35 +9,46 @@ import {
   UsePipes,
   ValidationPipe,
   Body,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  InternalServerErrorException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { UserIdRolesDto } from '../auth/dto/userIdRoles.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UserIdRoles } from '../decorators/user.decorator';
+import { getFileValidateConfig } from '../pipes/file.validation.config';
 import { IdValidationPipe } from '../pipes/id.validation.pipe';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UPLOAD_ERROR } from './user.constants';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userServise: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Delete(':id')
   @Auth()
   async delete(@Param('id', IdValidationPipe) id: string) {
-    const deletedUser = await this.userServise.delete(id);
-    await this.userServise.checkIsNotEmpty(deletedUser);
+    const deletedUser = await this.userService.delete(id);
+    await this.userService.checkIsNotEmpty(deletedUser);
   }
 
   @Get('all')
   @Auth('ADMIN')
   async getAllUsers() {
-    return this.userServise.getAll();
+    return this.userService.getAll();
   }
 
   @Get(':id')
   async getProfile(@Param('id', IdValidationPipe) id: string) {
-    const profile = await this.userServise.getOne(id);
-    return this.userServise.checkIsNotEmpty(profile);
+    const profile = await this.userService.getOne(id);
+    return this.userService.checkIsNotEmpty(profile);
   }
 
   @Patch('profile')
@@ -46,8 +58,8 @@ export class UserController {
     @UserIdRoles() { id }: UserIdRolesDto,
     @Body() dto: UpdateProfileDto,
   ) {
-    const updatedProfile = await this.userServise.updateProfile(id, dto);
-    return this.userServise.checkIsNotEmpty(updatedProfile);
+    const updatedProfile = await this.userService.updateProfile(id, dto);
+    return this.userService.checkIsNotEmpty(updatedProfile);
   }
 
   @Post('follow/:followedId')
@@ -56,8 +68,8 @@ export class UserController {
     @Param('followedId', IdValidationPipe) followedId: string,
     @UserIdRoles() { id }: UserIdRolesDto,
   ) {
-    const followedIds = await this.userServise.follow(id, followedId);
-    return this.userServise.checkIsNotEmpty(followedIds);
+    const followedIds = await this.userService.follow(id, followedId);
+    return this.userService.checkIsNotEmpty(followedIds);
   }
 
   @Get('follow/:followedId')
@@ -66,7 +78,7 @@ export class UserController {
     @Param('followedId', IdValidationPipe) followedId: string,
     @UserIdRoles() { id }: UserIdRolesDto,
   ) {
-    return this.userServise.isFollowed(id, followedId);
+    return this.userService.isFollowed(id, followedId);
   }
 
   @Delete('follow/:unfollowedId')
@@ -75,7 +87,28 @@ export class UserController {
     @Param('unfollowedId', IdValidationPipe) unfollowedId: string,
     @UserIdRoles() { id }: UserIdRolesDto,
   ) {
-    const followedIds = await this.userServise.unfollow(id, unfollowedId);
-    return this.userServise.checkIsNotEmpty(followedIds);
+    const followedIds = await this.userService.unfollow(id, unfollowedId);
+    return this.userService.checkIsNotEmpty(followedIds);
+  }
+
+  @Post('photo')
+  @HttpCode(200)
+  @Auth()
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadImage(
+    @UserIdRoles() { id }: UserIdRolesDto,
+    @UploadedFile(new ParseFilePipe(getFileValidateConfig()))
+    file: Express.Multer.File,
+  ) {
+    try {
+      const imgData = await this.cloudinaryService.uploadImage(file, id);
+      const imgUrl = await this.userService.savePhotoUrl(
+        id,
+        imgData.secure_url,
+      );
+      return this.userService.checkIsNotEmpty(imgUrl);
+    } catch {
+      throw new InternalServerErrorException(UPLOAD_ERROR);
+    }
   }
 }

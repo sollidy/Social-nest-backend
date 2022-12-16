@@ -5,6 +5,7 @@ import { getMongoConfig } from './configs/mongo.config';
 
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot(),
     UserModule,
     AuthModule,
+    CloudinaryModule,
   ],
 })
 export class AppModule {}
