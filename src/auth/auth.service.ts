@@ -56,6 +56,6 @@ export class AuthService {
   }
 
   async me(id: string) {
-    return this.userService.findById(id);
+    return this.userService.findByIdOrError(id);
   }
 }

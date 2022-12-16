@@ -23,19 +23,17 @@ export class UserService {
     return newUser.save();
   }
 
-  async delete(id: string): Promise<Users> {
-    const deleted = await this.userModel.findByIdAndDelete(id).exec();
-    return this.checkUserExist(deleted);
+  async delete(id: string): Promise<Users | null> {
+    return this.userModel.findByIdAndDelete(id).exec();
   }
 
-  async findByEmail(email: string): Promise<Users> {
-    const user = await this.userModel.findOne({ email }).exec();
-    return this.checkUserExist(user);
+  async findByEmail(email: string): Promise<Users | null> {
+    return this.userModel.findOne({ email }).exec();
   }
 
-  async findById(id: string): Promise<Users> {
+  async findByIdOrError(id: string): Promise<Users> {
     const user = await this.userModel.findById(id).exec();
-    return this.checkUserExist(user);
+    return this.checkIsNotEmpty(user);
   }
 
   async getAll(): Promise<Pick<Users, '_id' | 'email' | 'name'>[]> {
@@ -73,7 +71,7 @@ export class UserService {
   }
 
   async isFollowed(id: string, followedId: string): Promise<boolean> {
-    const user = await this.findById(id);
+    const user = await this.findByIdOrError(id);
     return user.followedIds.includes(followedId);
   }
 
@@ -91,7 +89,7 @@ export class UserService {
   }
 
   //internal
-  async checkUserExist(user: Users | null) {
+  async checkIsNotEmpty<T>(user: T | null) {
     if (!user) {
       throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
     }

@@ -2,8 +2,6 @@ import {
   Controller,
   Delete,
   Param,
-  HttpException,
-  HttpStatus,
   Get,
   Patch,
   Post,
@@ -16,7 +14,6 @@ import { UserIdRolesDto } from '../auth/dto/userIdRoles.dto';
 import { UserIdRoles } from '../decorators/user.decorator';
 import { IdValidationPipe } from '../pipes/id.validation.pipe';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { USER_NOT_FOUND } from './user.constants';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -26,7 +23,8 @@ export class UserController {
   @Delete(':id')
   @Auth()
   async delete(@Param('id', IdValidationPipe) id: string) {
-    await this.userServise.delete(id);
+    const deletedUser = await this.userServise.delete(id);
+    await this.userServise.checkIsNotEmpty(deletedUser);
   }
 
   @Get('all')
@@ -38,10 +36,7 @@ export class UserController {
   @Get(':id')
   async getProfile(@Param('id', IdValidationPipe) id: string) {
     const profile = await this.userServise.getOne(id);
-    if (!profile) {
-      throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
-    return profile;
+    return this.userServise.checkIsNotEmpty(profile);
   }
 
   @Patch('profile')
@@ -52,10 +47,7 @@ export class UserController {
     @Body() dto: UpdateProfileDto,
   ) {
     const updatedProfile = await this.userServise.updateProfile(id, dto);
-    if (!updatedProfile) {
-      throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
-    return updatedProfile;
+    return this.userServise.checkIsNotEmpty(updatedProfile);
   }
 
   @Post('follow/:followedId')
@@ -65,10 +57,7 @@ export class UserController {
     @UserIdRoles() { id }: UserIdRolesDto,
   ) {
     const followedIds = await this.userServise.follow(id, followedId);
-    if (!followedIds) {
-      throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
-    return followedIds;
+    return this.userServise.checkIsNotEmpty(followedIds);
   }
 
   @Get('follow/:followedId')
@@ -87,9 +76,6 @@ export class UserController {
     @UserIdRoles() { id }: UserIdRolesDto,
   ) {
     const followedIds = await this.userServise.unfollow(id, unfollowedId);
-    if (!followedIds) {
-      throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
-    return followedIds;
+    return this.userServise.checkIsNotEmpty(followedIds);
   }
 }
