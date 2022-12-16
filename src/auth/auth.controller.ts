@@ -1,16 +1,13 @@
 import {
-  HttpException,
   Body,
   Controller,
   Get,
   HttpCode,
-  HttpStatus,
   Post,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { UserIdRoles } from '../decorators/user.decorator';
-import { ID_NOT_FOUND_ERROR } from './auth.constants';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
 import { AuthDto } from './dto/auth.dto';
@@ -36,10 +33,6 @@ export class AuthController {
   @Get('me')
   @Auth()
   async me(@UserIdRoles() { id }: UserIdRolesDto) {
-    const me = await this.authService.me(id);
-    if (!me) {
-      throw new HttpException(ID_NOT_FOUND_ERROR, HttpStatus.NOT_FOUND);
-    }
-    return me;
+    return this.authService.me(id);
   }
 }

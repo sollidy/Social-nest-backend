@@ -24,6 +24,8 @@ class Profile {
 
 @Schema({ timestamps: true })
 export class Users {
+  _id: string;
+
   @Prop({ unique: true, required: true })
   email: string;
 

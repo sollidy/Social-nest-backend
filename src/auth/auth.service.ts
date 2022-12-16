@@ -45,7 +45,7 @@ export class AuthService {
     if (!isCorrectPassword) {
       throw new UnauthorizedException(WRONG_PASSWORD_ERROR);
     }
-    return { id: user.id as string, roles: user.roles };
+    return { id: user._id, roles: user.roles };
   }
 
   async login(id: string, roles: string[]) {
@@ -56,7 +56,6 @@ export class AuthService {
   }
 
   async me(id: string) {
-    if (!id) return;
     return this.userService.findById(id);
   }
 }

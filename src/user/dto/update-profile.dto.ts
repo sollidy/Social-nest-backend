@@ -10,18 +10,23 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(300)
   @IsOptional()
-  aboutMe?: string;
+  aboutMe: string;
 
   @IsBoolean()
   @IsOptional()
-  lookingForAJob?: boolean;
+  lookingForAJob: boolean;
 
   @IsString()
   @MaxLength(300)
   @IsOptional()
-  lookingForAJobDescription?: string;
+  status: string;
+
+  @IsString()
+  @MaxLength(300)
+  @IsOptional()
+  lookingForAJobDescription: string;
 
   @IsUrl()
   @IsOptional()
-  homeUrl?: string;
+  homeUrl: string;
 }
