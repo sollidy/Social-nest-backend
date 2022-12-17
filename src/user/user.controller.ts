@@ -15,6 +15,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { UserIdRolesDto } from '../auth/dto/userIdRoles.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -25,12 +26,19 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UPLOAD_ERROR } from './user.constants';
 import { UserService } from './user.service';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
+
+  @Get(':id')
+  async getProfile(@Param('id', IdValidationPipe) id: string) {
+    const profile = await this.userService.getOne(id);
+    return this.userService.checkIsNotEmpty(profile);
+  }
 
   @Delete(':id')
   @Auth()
@@ -43,12 +51,6 @@ export class UserController {
   @Auth('ADMIN')
   async getAllUsers() {
     return this.userService.getAll();
-  }
-
-  @Get(':id')
-  async getProfile(@Param('id', IdValidationPipe) id: string) {
-    const profile = await this.userService.getOne(id);
-    return this.userService.checkIsNotEmpty(profile);
   }
 
   @Patch('profile')
@@ -102,11 +104,11 @@ export class UserController {
   ) {
     try {
       const imgData = await this.cloudinaryService.uploadImage(file, id);
-      const imgUrl = await this.userService.savePhotoUrl(
+      const response = await this.userService.savePhotoUrl(
         id,
         imgData.secure_url,
       );
-      return this.userService.checkIsNotEmpty(imgUrl);
+      return this.userService.checkIsNotEmpty(response);
     } catch {
       throw new InternalServerErrorException(UPLOAD_ERROR);
     }

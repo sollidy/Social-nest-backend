@@ -1,5 +1,6 @@
 import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ _id: false })
 class Profile {
@@ -24,6 +25,7 @@ class Profile {
 
 @Schema({ timestamps: true })
 export class Users {
+  @ApiProperty()
   _id: string;
 
   @Prop({ unique: true, required: true })

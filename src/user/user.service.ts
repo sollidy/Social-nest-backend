@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { USER_NOT_FOUND } from './user.constants';
 import { UserDocument, Users } from './user.model';
+import { PickNested } from './utils/nested-pick-type';
 
 @Injectable()
 export class UserService {
@@ -98,7 +99,10 @@ export class UserService {
       .exec();
   }
 
-  async savePhotoUrl(id: string, url: string) {
+  async savePhotoUrl(
+    id: string,
+    url: string,
+  ): Promise<PickNested<Users, 'profile', 'photo'> | null> {
     return this.userModel
       .findByIdAndUpdate(
         id,
