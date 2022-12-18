@@ -7,14 +7,14 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserIdRoles } from '../decorators/user.decorator';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
 import { AuthDto, LoginDto } from './dto/auth.dto';
 import { UserIdRolesDto } from './dto/userIdRoles.dto';
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -34,6 +34,7 @@ export class AuthController {
 
   @Get('me')
   @Auth()
+  @ApiBearerAuth()
   async me(@UserIdRoles() { id }: UserIdRolesDto) {
     return this.authService.me(id);
   }

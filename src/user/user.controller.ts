@@ -15,18 +15,19 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { UserIdRolesDto } from '../auth/dto/userIdRoles.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UserIdRoles } from '../decorators/user.decorator';
 import { getFileValidateConfig } from '../pipes/file.validation.config';
 import { IdValidationPipe } from '../pipes/id.validation.pipe';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { FileUploadDto } from './dto/file-upload.dto';
+import { UpdatePartialProfileDto } from './dto/update-profile.dto';
 import { UPLOAD_ERROR } from './user.constants';
 import { UserService } from './user.service';
 
-@ApiTags('user')
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(
@@ -34,31 +35,19 @@ export class UserController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  @Get(':id')
+  @Get('profile/:id')
   async getProfile(@Param('id', IdValidationPipe) id: string) {
     const profile = await this.userService.getOne(id);
     return this.userService.checkIsNotEmpty(profile);
   }
 
-  @Delete(':id')
-  @Auth()
-  async delete(@Param('id', IdValidationPipe) id: string) {
-    const deletedUser = await this.userService.delete(id);
-    await this.userService.checkIsNotEmpty(deletedUser);
-  }
-
-  @Get('all')
-  @Auth('ADMIN')
-  async getAllUsers() {
-    return this.userService.getAll();
-  }
-
   @Patch('profile')
   @UsePipes(new ValidationPipe())
   @Auth()
+  @ApiBearerAuth()
   async updateProfile(
     @UserIdRoles() { id }: UserIdRolesDto,
-    @Body() dto: UpdateProfileDto,
+    @Body() dto: UpdatePartialProfileDto,
   ) {
     const updatedProfile = await this.userService.updateProfile(id, dto);
     return this.userService.checkIsNotEmpty(updatedProfile);
@@ -66,6 +55,7 @@ export class UserController {
 
   @Post('follow/:followedId')
   @Auth()
+  @ApiBearerAuth()
   async follow(
     @Param('followedId', IdValidationPipe) followedId: string,
     @UserIdRoles() { id }: UserIdRolesDto,
@@ -74,17 +64,19 @@ export class UserController {
     return this.userService.checkIsNotEmpty(followedIds);
   }
 
-  @Get('follow/:followedId')
+  @Get('follow/:checkId')
   @Auth()
+  @ApiBearerAuth()
   async isFollowed(
-    @Param('followedId', IdValidationPipe) followedId: string,
+    @Param('checkId', IdValidationPipe) checkId: string,
     @UserIdRoles() { id }: UserIdRolesDto,
   ) {
-    return this.userService.isFollowed(id, followedId);
+    return this.userService.isFollowed(id, checkId);
   }
 
   @Delete('follow/:unfollowedId')
   @Auth()
+  @ApiBearerAuth()
   async unfollow(
     @Param('unfollowedId', IdValidationPipe) unfollowedId: string,
     @UserIdRoles() { id }: UserIdRolesDto,
@@ -96,6 +88,12 @@ export class UserController {
   @Post('photo')
   @HttpCode(200)
   @Auth()
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'User Image',
+    type: FileUploadDto,
+  })
   @UseInterceptors(FileInterceptor('image'))
   async uploadImage(
     @UserIdRoles() { id }: UserIdRolesDto,
@@ -112,5 +110,23 @@ export class UserController {
     } catch {
       throw new InternalServerErrorException(UPLOAD_ERROR);
     }
+  }
+
+  //Admin only
+  @Get('all')
+  @ApiTags('Admin only')
+  @Auth('ADMIN')
+  @ApiBearerAuth('ADMIN')
+  async getAllUsers() {
+    return this.userService.getAll();
+  }
+
+  @Delete(':id')
+  @ApiTags('Admin only')
+  @Auth()
+  @ApiBearerAuth('ADMIN')
+  async delete(@Param('id', IdValidationPipe) id: string) {
+    const deletedUser = await this.userService.delete(id);
+    await this.userService.checkIsNotEmpty(deletedUser);
   }
 }
