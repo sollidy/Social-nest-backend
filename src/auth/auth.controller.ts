@@ -8,11 +8,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserIdRoles } from '../decorators/user.decorator';
+import { JwtUser } from '../decorators/jwtUser.decorator';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
 import { AuthDto, LoginDto } from './dto/auth.dto';
-import { UserIdRolesDto } from './dto/userIdRoles.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -35,7 +34,7 @@ export class AuthController {
   @Get('me')
   @Auth()
   @ApiBearerAuth()
-  async me(@UserIdRoles() { id }: UserIdRolesDto) {
+  async me(@JwtUser('id') id: string) {
     return this.authService.me(id);
   }
 }

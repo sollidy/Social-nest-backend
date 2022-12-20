@@ -34,6 +34,7 @@
     "class-validator": "^0.14.0",
     "cloudinary": "^1.33.0",
     "mongoose": "^6.8.0",
+    "mongoose-paginate-v2": "^1.7.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.13",

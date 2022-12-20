@@ -13,16 +13,18 @@ import {
   UploadedFile,
   ParseFilePipe,
   InternalServerErrorException,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
-import { UserIdRolesDto } from '../auth/dto/userIdRoles.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { UserIdRoles } from '../decorators/user.decorator';
+import { JwtUser } from '../decorators/jwtUser.decorator';
+import { jwtUserWithoutValidate } from '../decorators/jwtUserWithoutValidate.decorator';
 import { getFileValidateConfig } from '../pipes/file.validation.config';
 import { IdValidationPipe } from '../pipes/id.validation.pipe';
 import { FileUploadDto } from './dto/file-upload.dto';
+import { QueryUsersDto } from './dto/query-users.dto';
 import { UpdatePartialProfileDto } from './dto/update-profile.dto';
 import { UPLOAD_ERROR } from './user.constants';
 import { UserService } from './user.service';
@@ -46,7 +48,7 @@ export class UserController {
   @Auth()
   @ApiBearerAuth()
   async updateProfile(
-    @UserIdRoles() { id }: UserIdRolesDto,
+    @JwtUser('id') id: string,
     @Body() dto: UpdatePartialProfileDto,
   ) {
     const updatedProfile = await this.userService.updateProfile(id, dto);
@@ -58,7 +60,7 @@ export class UserController {
   @ApiBearerAuth()
   async follow(
     @Param('followedId', IdValidationPipe) followedId: string,
-    @UserIdRoles() { id }: UserIdRolesDto,
+    @JwtUser('id') id: string,
   ) {
     const followedIds = await this.userService.follow(id, followedId);
     return this.userService.checkIsNotEmpty(followedIds);
@@ -69,7 +71,7 @@ export class UserController {
   @ApiBearerAuth()
   async isFollowed(
     @Param('checkId', IdValidationPipe) checkId: string,
-    @UserIdRoles() { id }: UserIdRolesDto,
+    @JwtUser('id') id: string,
   ) {
     return this.userService.isFollowed(id, checkId);
   }
@@ -79,7 +81,7 @@ export class UserController {
   @ApiBearerAuth()
   async unfollow(
     @Param('unfollowedId', IdValidationPipe) unfollowedId: string,
-    @UserIdRoles() { id }: UserIdRolesDto,
+    @JwtUser('id') id: string,
   ) {
     const followedIds = await this.userService.unfollow(id, unfollowedId);
     return this.userService.checkIsNotEmpty(followedIds);
@@ -96,7 +98,7 @@ export class UserController {
   })
   @UseInterceptors(FileInterceptor('image'))
   async uploadImage(
-    @UserIdRoles() { id }: UserIdRolesDto,
+    @JwtUser('id') id: string,
     @UploadedFile(new ParseFilePipe(getFileValidateConfig()))
     file: Express.Multer.File,
   ) {
@@ -112,9 +114,22 @@ export class UserController {
     }
   }
 
+  @Get('get-users')
+  @Auth('ANY')
+  async getUsers(
+    @jwtUserWithoutValidate('id') id: string,
+    @Query() query: QueryUsersDto,
+  ) {
+    return this.userService.getUsers(id, query);
+  }
+}
+@ApiTags('Admin')
+@Controller('user')
+export class UserAdminController {
+  constructor(private readonly userService: UserService) {}
+
   //Admin only
-  @Get('all')
-  @ApiTags('Admin only')
+  @Get('get-all')
   @Auth('ADMIN')
   @ApiBearerAuth('ADMIN')
   async getAllUsers() {
@@ -122,8 +137,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @ApiTags('Admin only')
-  @Auth()
+  @Auth('ADMIN')
   @ApiBearerAuth('ADMIN')
   async delete(@Param('id', IdValidationPipe) id: string) {
     const deletedUser = await this.userService.delete(id);

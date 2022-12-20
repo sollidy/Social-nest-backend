@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { PaginateModel, PaginateOptions } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePartialProfileDto } from './dto/update-profile.dto';
 import { USER_NOT_FOUND } from './user.constants';
@@ -11,11 +11,13 @@ import {
   ResponseGetOne,
   ResponseProfile,
 } from './types/swagger-return-types';
+import { QueryUsersDto } from './dto/query-users.dto';
+import { ResponsePaginateUserDto } from './dto/paginate-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(Users.name) private userModel: Model<UserDocument>,
+    @InjectModel(Users.name) private userModel: PaginateModel<UserDocument>,
   ) {}
 
   async create(dto: CreateUserDto): Promise<Users> {
@@ -107,6 +109,37 @@ export class UserService {
         { new: true, select: 'profile' },
       )
       .exec();
+  }
+
+  async getUsers(
+    id: string | undefined,
+    query: QueryUsersDto,
+  ): Promise<ResponsePaginateUserDto> {
+    const { limit, page, friend = 'false', term = '' } = query;
+    const termRegexp = new RegExp(term, 'i');
+    const getPaginateOptions = (): PaginateOptions => ({
+      sort: '-createdAt',
+      page: (page && +page) || 1,
+      limit: (limit && +limit) || 10,
+      select: 'name profile',
+    });
+    if (id && friend === 'true') {
+      const currentUser = await this.findByIdOrError(id);
+      return this.userModel.paginate(
+        {
+          $and: [
+            { name: termRegexp },
+            { _id: { $in: currentUser.followedIds } },
+          ],
+        },
+        getPaginateOptions(),
+      );
+    } else {
+      return this.userModel.paginate(
+        { name: termRegexp },
+        getPaginateOptions(),
+      );
+    }
   }
 
   //internal

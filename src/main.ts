@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ROLE_ADMIN } from './auth/auth.constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,7 +12,7 @@ async function bootstrap() {
     .setDescription('Social API description')
     .setVersion('1.0')
     .addTag('Social')
-    .addBearerAuth({ type: 'http' }, 'ADMIN')
+    .addBearerAuth({ type: 'http' }, ROLE_ADMIN)
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

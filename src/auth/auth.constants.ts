@@ -7,5 +7,10 @@ export const INVALID_ID_ERROR = 'Invalid Id format';
 
 export const ROLE_USER = 'USER';
 export const ROLE_ADMIN = 'ADMIN';
+export const ANY_USER = 'ANY';
 
-export type TypeRole = typeof ROLE_USER | typeof ROLE_ADMIN | undefined;
+export type TypeRole =
+  | typeof ROLE_USER
+  | typeof ROLE_ADMIN
+  | typeof ANY_USER
+  | undefined;

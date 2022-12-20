@@ -1,4 +1,4 @@
-export class UserIdRolesDto {
+export class JwtUserDto {
   id: string;
   roles: string[];
 }
