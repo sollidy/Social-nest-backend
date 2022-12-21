@@ -20,7 +20,6 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { JwtUser } from '../decorators/jwtUser.decorator';
-import { jwtUserWithoutValidate } from '../decorators/jwtUserWithoutValidate.decorator';
 import { getFileValidateConfig } from '../pipes/file.validation.config';
 import { IdValidationPipe } from '../pipes/id.validation.pipe';
 import { FileUploadDto } from './dto/file-upload.dto';
@@ -48,7 +47,7 @@ export class UserController {
   @Auth()
   @ApiBearerAuth()
   async updateProfile(
-    @JwtUser('id') id: string,
+    @JwtUser('id', IdValidationPipe) id: string,
     @Body() dto: UpdatePartialProfileDto,
   ) {
     const updatedProfile = await this.userService.updateProfile(id, dto);
@@ -60,7 +59,7 @@ export class UserController {
   @ApiBearerAuth()
   async follow(
     @Param('followedId', IdValidationPipe) followedId: string,
-    @JwtUser('id') id: string,
+    @JwtUser('id', IdValidationPipe) id: string,
   ) {
     const followedIds = await this.userService.follow(id, followedId);
     return this.userService.checkIsNotEmpty(followedIds);
@@ -71,7 +70,7 @@ export class UserController {
   @ApiBearerAuth()
   async isFollowed(
     @Param('checkId', IdValidationPipe) checkId: string,
-    @JwtUser('id') id: string,
+    @JwtUser('id', IdValidationPipe) id: string,
   ) {
     return this.userService.isFollowed(id, checkId);
   }
@@ -81,7 +80,7 @@ export class UserController {
   @ApiBearerAuth()
   async unfollow(
     @Param('unfollowedId', IdValidationPipe) unfollowedId: string,
-    @JwtUser('id') id: string,
+    @JwtUser('id', IdValidationPipe) id: string,
   ) {
     const followedIds = await this.userService.unfollow(id, unfollowedId);
     return this.userService.checkIsNotEmpty(followedIds);
@@ -98,7 +97,7 @@ export class UserController {
   })
   @UseInterceptors(FileInterceptor('image'))
   async uploadImage(
-    @JwtUser('id') id: string,
+    @JwtUser('id', IdValidationPipe) id: string,
     @UploadedFile(new ParseFilePipe(getFileValidateConfig()))
     file: Express.Multer.File,
   ) {
@@ -116,10 +115,7 @@ export class UserController {
 
   @Get('get-users')
   @Auth('ANY')
-  async getUsers(
-    @jwtUserWithoutValidate('id') id: string,
-    @Query() query: QueryUsersDto,
-  ) {
+  async getUsers(@JwtUser('id') id: string, @Query() query: QueryUsersDto) {
     return this.userService.getUsers(id, query);
   }
 }
