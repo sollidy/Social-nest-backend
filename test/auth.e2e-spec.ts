@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { disconnect, Types } from 'mongoose';
 import { AuthDto } from '../src/auth/dto/auth.dto';
-import { USER_NOT_FOUND } from '../src/user/user.constants';
+import { USER_IN_DB_NOT_FOUND_ERROR } from '../src/user/user.constants';
 
 const testDto: AuthDto = {
   email: 'testApiNest@a.ru',
@@ -68,7 +68,7 @@ describe('AppController (e2e)', () => {
       .set('Authorization', 'Bearer ' + token)
       .expect(404, {
         statusCode: 404,
-        message: USER_NOT_FOUND,
+        message: USER_IN_DB_NOT_FOUND_ERROR,
       })
       .end(done);
   });

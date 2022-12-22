@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, PaginateOptions } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePartialProfileDto } from './dto/update-profile.dto';
-import { USER_NOT_FOUND } from './user.constants';
+import { USER_IN_DB_NOT_FOUND_ERROR } from './user.constants';
 import { UserDocument, Users } from './user.model';
 import {
   ResponseFollow,
@@ -145,7 +145,7 @@ export class UserService {
   //internal
   async checkIsNotEmpty<T>(user: T | null) {
     if (!user) {
-      throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+      throw new HttpException(USER_IN_DB_NOT_FOUND_ERROR, HttpStatus.NOT_FOUND);
     }
     return user;
   }

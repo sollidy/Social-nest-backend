@@ -22,6 +22,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { JwtUser } from '../decorators/jwtUser.decorator';
 import { getFileValidateConfig } from '../pipes/file.validation.config';
 import { IdValidationPipe } from '../pipes/id.validation.pipe';
+import { ApiIdErrorResponse } from './decorators/user-resonse.decorator';
 import { FileUploadDto } from './dto/file-upload.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { UpdatePartialProfileDto } from './dto/update-profile.dto';
@@ -37,6 +38,7 @@ export class UserController {
   ) {}
 
   @Get('profile/:id')
+  @ApiIdErrorResponse()
   async getProfile(@Param('id', IdValidationPipe) id: string) {
     const profile = await this.userService.getOne(id);
     return this.userService.checkIsNotEmpty(profile);
@@ -56,6 +58,7 @@ export class UserController {
 
   @Post('follow/:followedId')
   @Auth()
+  @ApiIdErrorResponse()
   @ApiBearerAuth()
   async follow(
     @Param('followedId', IdValidationPipe) followedId: string,
@@ -67,6 +70,7 @@ export class UserController {
 
   @Get('follow/:checkId')
   @Auth()
+  @ApiIdErrorResponse()
   @ApiBearerAuth()
   async isFollowed(
     @Param('checkId', IdValidationPipe) checkId: string,
@@ -77,6 +81,7 @@ export class UserController {
 
   @Delete('follow/:unfollowedId')
   @Auth()
+  @ApiIdErrorResponse()
   @ApiBearerAuth()
   async unfollow(
     @Param('unfollowedId', IdValidationPipe) unfollowedId: string,
