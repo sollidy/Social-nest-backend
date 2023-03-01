@@ -125,6 +125,7 @@ export class UserService {
     });
     if (id && friend === 'true') {
       const currentUser = await this.findByIdOrError(id);
+      //TODO try mongoose-aggregate-paginate-v2 to aggregate query
       return this.userModel.paginate(
         {
           $and: [
