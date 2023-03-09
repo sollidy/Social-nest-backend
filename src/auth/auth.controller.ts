@@ -23,7 +23,7 @@ import {
   UserNotFoundErrorDto,
   WrongPasswordErrorDto,
 } from './dto/auth-errors.dto';
-import { AuthDto, LoginDto } from './dto/auth.dto';
+import { AuthDto, LoginDto, LoginResponseDto } from './dto/auth.dto';
 
 @ApiTags('Auth')
 @ApiExtraModels(UserNotFoundErrorDto, WrongPasswordErrorDto)
@@ -45,7 +45,9 @@ export class AuthController {
       anyOf: refs(UserNotFoundErrorDto, WrongPasswordErrorDto),
     },
   })
-  async login(@Body() { email, password }: LoginDto) {
+  async login(
+    @Body() { email, password }: LoginDto,
+  ): Promise<LoginResponseDto> {
     const user = await this.authService.validateUser(email, password);
     return this.authService.login(user.id, user.roles);
   }

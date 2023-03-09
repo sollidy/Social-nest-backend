@@ -1,19 +1,19 @@
 import {
+  BadRequestException,
   Injectable,
   UnauthorizedException,
-  BadRequestException,
 } from '@nestjs/common';
 
-import { AuthDto } from './dto/auth.dto';
+import { JwtService } from '@nestjs/jwt';
 import { compare, genSalt, hash } from 'bcryptjs';
+import { UserService } from '../user/user.service';
 import {
   ALREADY_EXIST_EMAIL_ERROR,
   ROLE_USER,
   USER_NOT_FOUND_ERROR,
   WRONG_PASSWORD_ERROR,
 } from './auth.constants';
-import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../user/user.service';
+import { AuthDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {

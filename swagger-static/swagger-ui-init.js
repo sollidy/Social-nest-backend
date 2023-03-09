@@ -430,7 +430,14 @@ window.onload = function() {
           },
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/LoginResponseDto"
+                  }
+                }
+              }
             },
             "401": {
               "description": "",
@@ -862,6 +869,17 @@ window.onload = function() {
           "required": [
             "email",
             "password"
+          ]
+        },
+        "LoginResponseDto": {
+          "type": "object",
+          "properties": {
+            "access_token": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "access_token"
           ]
         }
       }

@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsString, IsEmail, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 export class AuthDto {
   @ApiProperty()
   @IsString()
@@ -16,3 +16,8 @@ export class AuthDto {
 }
 
 export class LoginDto extends OmitType(AuthDto, ['name'] as const) {}
+
+export class LoginResponseDto {
+  @ApiProperty()
+  access_token: string;
+}
