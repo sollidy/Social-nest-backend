@@ -17,8 +17,8 @@ export class AuthDto {
 
 export class LoginDto extends OmitType(AuthDto, ['name'] as const) {}
 
+//TODO Is it necessary add @ApiProperty to this class?
 export class LoginResponseDto {
-  @ApiProperty()
   _id: string;
   access_token: string;
 }

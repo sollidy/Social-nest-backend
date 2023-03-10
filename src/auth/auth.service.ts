@@ -55,10 +55,9 @@ export class AuthService {
   }
 
   async login(id: string, roles: string[]) {
-    const payload = { id, roles };
     return {
       _id: id,
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync({ id, roles }),
     };
   }
 
