@@ -28,12 +28,18 @@ export class AuthService {
       throw new BadRequestException(ALREADY_EXIST_EMAIL_ERROR);
     }
     const salt = await genSalt(5);
-    return this.userService.create({
+    const newUser = await this.userService.create({
       name: dto.name,
       email: dto.email,
       passwordHash: await hash(dto.password, salt),
       roles: [ROLE_USER],
     });
+    const { _id: id, roles, name } = newUser;
+    return {
+      _id: id,
+      name,
+      access_token: await this.jwtService.signAsync({ id, roles }),
+    };
   }
 
   async validateUser(email: string, password: string) {
@@ -51,6 +57,7 @@ export class AuthService {
   async login(id: string, roles: string[]) {
     const payload = { id, roles };
     return {
+      _id: id,
       access_token: await this.jwtService.signAsync(payload),
     };
   }

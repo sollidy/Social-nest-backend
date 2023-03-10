@@ -23,7 +23,12 @@ import {
   UserNotFoundErrorDto,
   WrongPasswordErrorDto,
 } from './dto/auth-errors.dto';
-import { AuthDto, LoginDto, LoginResponseDto } from './dto/auth.dto';
+import {
+  AuthDto,
+  LoginDto,
+  LoginResponseDto,
+  RegisterResponseDto,
+} from './dto/auth.dto';
 
 @ApiTags('Auth')
 @ApiExtraModels(UserNotFoundErrorDto, WrongPasswordErrorDto)
@@ -34,7 +39,7 @@ export class AuthController {
   @Post('register')
   @UsePipes(new ValidationPipe())
   @ApiBadRequestResponse({ type: AlreadyExistUserErrorDto })
-  async register(@Body() dto: AuthDto) {
+  async register(@Body() dto: AuthDto): Promise<RegisterResponseDto> {
     return this.authService.register(dto);
   }
 

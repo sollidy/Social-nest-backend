@@ -19,5 +19,12 @@ export class LoginDto extends OmitType(AuthDto, ['name'] as const) {}
 
 export class LoginResponseDto {
   @ApiProperty()
+  _id: string;
+  access_token: string;
+}
+
+export class RegisterResponseDto {
+  _id: string;
+  name: string;
   access_token: string;
 }

@@ -393,7 +393,7 @@ window.onload = function() {
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/Users"
+                    "$ref": "#/components/schemas/RegisterResponseDto"
                   }
                 }
               }
@@ -790,47 +790,23 @@ window.onload = function() {
             "password"
           ]
         },
-        "Users": {
+        "RegisterResponseDto": {
           "type": "object",
           "properties": {
             "_id": {
-              "type": "string",
-              "readOnly": true
-            },
-            "email": {
-              "type": "string",
-              "uniqueItems": true
-            },
-            "passwordHash": {
               "type": "string"
             },
             "name": {
               "type": "string"
             },
-            "followedIds": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "roles": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "profile": {
-              "$ref": "#/components/schemas/Profile"
+            "access_token": {
+              "type": "string"
             }
           },
           "required": [
             "_id",
-            "email",
-            "passwordHash",
             "name",
-            "followedIds",
-            "roles",
-            "profile"
+            "access_token"
           ]
         },
         "AlreadyExistUserErrorDto": {
@@ -874,12 +850,59 @@ window.onload = function() {
         "LoginResponseDto": {
           "type": "object",
           "properties": {
+            "_id": {
+              "type": "string"
+            },
             "access_token": {
               "type": "string"
             }
           },
           "required": [
+            "_id",
             "access_token"
+          ]
+        },
+        "Users": {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "readOnly": true
+            },
+            "email": {
+              "type": "string",
+              "uniqueItems": true
+            },
+            "passwordHash": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "followedIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "profile": {
+              "$ref": "#/components/schemas/Profile"
+            }
+          },
+          "required": [
+            "_id",
+            "email",
+            "passwordHash",
+            "name",
+            "followedIds",
+            "roles",
+            "profile"
           ]
         }
       }
