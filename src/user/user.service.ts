@@ -9,7 +9,6 @@ import {
   ResponseFollow,
   ResponseGetAll,
   ResponseGetOne,
-  ResponseProfile,
 } from './types/swagger-return-types';
 import { USER_IN_DB_NOT_FOUND_ERROR } from './user.constants';
 import { UserDocument, Users } from './user.model';
@@ -55,7 +54,7 @@ export class UserService {
   async updateProfile(
     id: string,
     dto: UpdatePartialProfileDto,
-  ): Promise<ResponseProfile | null> {
+  ): Promise<ResponseGetOne | null> {
     return this.userModel
       .findByIdAndUpdate(
         id,
@@ -101,12 +100,12 @@ export class UserService {
       .exec();
   }
 
-  async savePhotoUrl(id: string, url: string): Promise<ResponseProfile | null> {
+  async savePhotoUrl(id: string, url: string): Promise<ResponseGetOne | null> {
     return this.userModel
       .findByIdAndUpdate(
         id,
         { 'profile.photo': url },
-        { new: true, select: 'profile' },
+        { new: true, select: 'profile name' },
       )
       .exec();
   }

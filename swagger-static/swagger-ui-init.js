@@ -71,7 +71,7 @@ window.onload = function() {
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/ResponseProfile"
+                    "$ref": "#/components/schemas/ResponseGetOne"
                   }
                 }
               }
@@ -243,7 +243,7 @@ window.onload = function() {
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/ResponseProfile"
+                    "$ref": "#/components/schemas/ResponseGetOne"
                   }
                 }
               }
@@ -609,22 +609,6 @@ window.onload = function() {
               "maxLength": 300
             }
           }
-        },
-        "ResponseProfile": {
-          "type": "object",
-          "properties": {
-            "_id": {
-              "type": "string",
-              "readOnly": true
-            },
-            "profile": {
-              "$ref": "#/components/schemas/Profile"
-            }
-          },
-          "required": [
-            "_id",
-            "profile"
-          ]
         },
         "ResponseFollow": {
           "type": "object",
