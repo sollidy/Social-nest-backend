@@ -2,17 +2,17 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, PaginateOptions } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ResponsePaginateUserDto } from './dto/paginate-user.dto';
+import { QueryUsersDto } from './dto/query-users.dto';
 import { UpdatePartialProfileDto } from './dto/update-profile.dto';
-import { USER_IN_DB_NOT_FOUND_ERROR } from './user.constants';
-import { UserDocument, Users } from './user.model';
 import {
   ResponseFollow,
   ResponseGetAll,
   ResponseGetOne,
   ResponseProfile,
 } from './types/swagger-return-types';
-import { QueryUsersDto } from './dto/query-users.dto';
-import { ResponsePaginateUserDto } from './dto/paginate-user.dto';
+import { USER_IN_DB_NOT_FOUND_ERROR } from './user.constants';
+import { UserDocument, Users } from './user.model';
 
 @Injectable()
 export class UserService {
@@ -66,7 +66,7 @@ export class UserService {
           'profile.lookingForAJob': dto.lookingForAJob,
           'profile.lookingForAJobDescription': dto.lookingForAJobDescription,
         },
-        { new: true, select: 'profile', upsert: true },
+        { new: true, select: 'profile name', upsert: true },
       )
       .exec();
   }
