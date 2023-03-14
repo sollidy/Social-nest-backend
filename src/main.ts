@@ -9,6 +9,7 @@ import { get } from 'http';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Social-net by m7mark')
