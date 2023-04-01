@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, PaginateOptions } from 'mongoose';
+import { escapeRegex } from 'src/user/utils/escapeRegex';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ResponsePaginateUserDto } from './dto/paginate-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
@@ -115,7 +116,7 @@ export class UserService {
     query: QueryUsersDto,
   ): Promise<ResponsePaginateUserDto> {
     const { limit, page, friend = 'false', term = '' } = query;
-    const termRegexp = new RegExp(term, 'i');
+    const termRegexp = new RegExp(escapeRegex(term), 'i');
     const getPaginateOptions = (): PaginateOptions => ({
       sort: '-createdAt',
       page: (page && +page) || 1,
